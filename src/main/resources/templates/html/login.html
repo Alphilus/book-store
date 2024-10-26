@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en"
+      th:replace="~{html/layout/layout :: layout(~{:: title}, ~{}, ~{:: #main-content}, ~{:: #js})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <!-- Include Bootstrap CSS -->
+    <th:block id="css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    </th:block>
+</head>
+<body>
+<th:block id="main-content">
+    <section class="py-4">
+        <div class="container">
+            <div class="d-flex justify-content-center align-items-center flex-column">
+                <h3 class="mb-3">Đăng nhập</h3>
+                <form id="form-login" class="p-4 bg-light border rounded">
+                    <div class="mb-3 form-group">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="text" class="form-control" id="email" name="email" required/>
+                    </div>
+                    <div class="mb-3 form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required/>
+                    </div>
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-primary" id="btn-login">Đăng nhập</button>
+                    </div>
+                    <div class="text-center">
+                        <a href="/register">Đăng ký</a> | <a href="/forgot-password">Quên mật khẩu</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+</th:block>
+<th:block id="js">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        document.getElementById('form-login').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await axios.post('/api/auth/login', { email, password });
+                alert('Login success');
+                sessionStorage.setItem('currentUser', JSON.stringify(response.data.user)); // Store user info if necessary
+                window.location.href = '/';
+            } catch (error) {
+                console.error(error);
+                alert(error.response?.data?.message || 'Login failed');
+            }
+        });
+    </script>
+</th:block>
+</body>
+</html>

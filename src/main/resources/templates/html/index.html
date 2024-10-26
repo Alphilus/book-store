@@ -1,0 +1,717 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- Basic -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Mobile Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <!-- Site Metas -->
+    <link rel="icon" href="/images/favicon.png" type="image/gif" />
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>Bostorek</title>
+
+    <!-- bootstrap core css -->
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
+    <!-- font awesome style -->
+    <link href="/css/font-awesome.min.css" rel="stylesheet" />
+
+    <!-- Custom styles for this template -->
+    <link href="/css/style.css" rel="stylesheet" />
+    <!-- responsive style -->
+    <link href="/css/responsive.css" rel="stylesheet" />
+
+  </head>
+
+  <body>
+
+    <div class="hero_area">
+      <!-- header section strats -->
+      <header class="header_section">
+        <div class="container-fluid">
+          <nav class="navbar navbar-expand-lg custom_nav-container ">
+            <a class="navbar-brand" href="/">
+              <span>
+                Bostorek
+              </span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class=""> </span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav">
+                <!-- Navigation links that are always visible -->
+                <li class="nav-item active">
+                  <a class="nav-link pl-lg-0" href="/">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="about">About</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="categories">Categories</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="blog">Blog</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="contact">Contact Us</a>
+                </li>
+                <!-- If the user is not logged in -->
+                <li class="nav-item" th:if="${session.currentUser == null}">
+                  <a class="nav-link" href="/login">Đăng nhập</a>
+                </li>
+                <!-- If the user is logged in -->
+                <li class="nav-item" th:if="${session.currentUser != null}">
+                  <a class="nav-link" href="#" onclick="logout()">Đăng xuất</a>
+                  <script>
+                    function logout() {
+                      fetch('/api/auth/logout', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json'
+                        }
+                      })
+                              .then(response => {
+                                if (response.ok) {
+                                  // Remove client-side session data
+                                  sessionStorage.removeItem('currentUser');
+
+                                  // Redirect to homepage or login page
+                                  window.location.href = "/";
+                                } else {
+                                  console.error('Logout failed:', response.statusText);
+                                }
+                              })
+                              .catch(error => {
+                                console.error('Error during logout:', error);
+                              });
+                    }
+                  </script>
+                </li>
+                <!-- If the user is logged in, show the avatar -->
+                <li class="avatar" th:if="${session.currentUser != null}">
+                  <img class="nav-link" th:src="${session.currentUser.profilePicture}" th:alt="${session.currentUser.userName}">
+                </li>
+              </ul>
+              <from class="search_form">
+                <input type="text" class="form-control" placeholder="Search here...">
+                <button class="" type="submit">
+                  <i class="fa fa-search" aria-hidden="true"></i>
+                </button>
+              </from>
+            </div>
+          </nav>
+        </div>
+      </header>
+      <!-- end header section -->
+      <!-- slider section -->
+      <section class="slider_section">
+        <div id="customCarousel1" class="carousel slide" data-ride="carousel">
+          <div class="carousel-inner">
+            <div th:each="book, iterStat : ${books}" th:classappend="${iterStat.index == 0} ? 'active' : ''" class="carousel-item">
+              <div class="container">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="detail-box">
+                      <h5 th:text="${book.author.name}">
+                        Book Title
+                      </h5>
+                      <h1 th:text="${book.title}">
+                        For All Your <br>
+                        Reading Needs
+                      </h1>
+                      <p th:text="${book.description}">
+                        Book Description
+                      </p>
+                      <a th:href="@{/book/{id}/{slug}(id=${book.id}, slug=${book.slug})}">
+                        Read More
+                      </a>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="img-box">
+                      <a th:href="@{/book/{id}/{slug}(id=${book.id}, slug=${book.slug})}">
+                        <img th:src="${book.preview}" th:alt="${book.title}">
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="carousel_btn_box">
+            <a class="carousel-control-prev" href="#customCarousel1" role="button" data-slide="prev">
+              <i class="fa fa-angle-left" aria-hidden="true"></i>
+              <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#customCarousel1" role="button" data-slide="next">
+              <i class="fa fa-angle-right" aria-hidden="true"></i>
+              <span class="sr-only">Next</span>
+            </a>
+          </div>
+        </div>
+      </section>
+      <!-- end slider section -->
+    </div>
+
+
+    <!-- catagory section -->
+
+    <section class="catagory_section layout_padding">
+      <div class="catagory_container">
+        <div class="container ">
+          <div class="heading_container heading_center">
+            <h2>
+              <a th:href="@{/genres/textbooks}">Textbooks</a>
+            </h2>
+            <p>
+              There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration
+            </p>
+          </div>
+          <div class="row">
+              <div th:each="textBook, iterStat : ${getTextBooks}" th:if="${iterStat.index < 6}" class="col-sm-6 col-md-4 ">
+                <div class="box ">
+                  <div class="img-box">
+                    <a th:href="@{/book/{id}/{slug}(id=${textBook.id}, slug=${textBook.slug})}">
+                      <img th:src="${textBook.cover}" th:alt="${textBook.title}">
+                    </a>
+                  </div>
+                  <div class="detail-box">
+                    <a th:href="@{/book/{id}/{slug}(id=${textBook.id}, slug=${textBook.slug})}">
+                      <h5 th:text="${textBook.title}">
+                        Textbooks
+                      </h5>
+                    </a>
+                    <h6 th:text="${textBook.price}">
+                      Price
+                    </h6>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="catagory_section layout_padding">
+      <div class="catagory_container">
+        <div class="container ">
+          <div class="heading_container heading_center">
+            <h2>
+              <a th:href="@{/genres/fiction}">Fiction</a>
+            </h2>
+            <p>
+              There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration
+            </p>
+          </div>
+          <div class="row">
+            <div th:each="fiction, iterStat : ${getFiction}" th:if="${iterStat.index < 6}" class="col-sm-6 col-md-4 ">
+              <div class="box ">
+                <div class="img-box">
+                  <a th:href="@{/book/{id}/{slug}(id=${fiction.id}, slug=${fiction.slug})}">
+                    <img th:src="${fiction.cover}" th:alt="${fiction.title}">
+                  </a>
+                </div>
+                <div class="detail-box">
+                  <a th:href="@{/book/{id}/{slug}(id=${fiction.id}, slug=${fiction.slug})}">
+                    <h5 th:text="${fiction.title}">
+                      Textbooks
+                    </h5>
+                  </a>
+                  <h6 th:text="${fiction.price}">
+                    Price
+                  </h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="catagory_section layout_padding">
+      <div class="catagory_container">
+        <div class="container ">
+          <div class="heading_container heading_center">
+            <h2>
+              <a th:href="@{/genres/non_fiction}"> Non-Fiction</a>
+            </h2>
+            <p>
+              There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration
+            </p>
+          </div>
+          <div class="row">
+            <div th:each="nonFiction, iterStat : ${getNonFiction}" th:if="${iterStat.index < 6}" class="col-sm-6 col-md-4 ">
+              <div class="box ">
+                <div class="img-box">
+                  <a th:href="@{/book/{id}/{slug}(id=${nonFiction.id}, slug=${nonFiction.slug})}">
+                    <img th:src="${nonFiction.cover}" th:alt="${nonFiction.title}">
+                  </a>
+                </div>
+                <div class="detail-box">
+                  <a th:href="@{/book/{id}/{slug}(id=${nonFiction.id}, slug=${nonFiction.slug})}">
+                    <h5 th:text="${nonFiction.title}">
+                      Textbooks
+                    </h5>
+                  </a>
+                  <h6 th:text="${nonFiction.price}">
+                    Price
+                  </h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="catagory_section layout_padding">
+      <div class="catagory_container">
+        <div class="container ">
+          <div class="heading_container heading_center">
+            <h2>
+              <a th:href="@{/genres/science}">Sciences</a>
+            </h2>
+            <p>
+              There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration
+            </p>
+          </div>
+          <div class="row">
+            <div th:each="science, iterStat : ${getScience}" th:if="${iterStat.index < 6}" class="col-sm-6 col-md-4 ">
+              <div class="box ">
+                <div class="img-box">
+                  <a th:href="@{/book/{id}/{slug}(id=${science.id}, slug=${science.slug})}">
+                    <img th:src="${science.cover}" th:alt="${science.title}">
+                  </a>
+                </div>
+                <div class="detail-box">
+                  <a th:href="@{/book/{id}/{slug}(id=${science.id}, slug=${science.slug})}">
+                    <h5 th:text="${science.title}">
+                      Textbooks
+                    </h5>
+                  </a>
+                  <h6 th:text="${science.price}">
+                    Price
+                  </h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="catagory_section layout_padding">
+      <div class="catagory_container">
+        <div class="container ">
+          <div class="heading_container heading_center">
+            <h2>
+              <a th:href="@{/genres/history}">History</a>
+            </h2>
+            <p>
+              There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration
+            </p>
+          </div>
+          <div class="row">
+            <div th:each="history, iterStat : ${getHistory}" th:if="${iterStat.index < 6}" class="col-sm-6 col-md-4 ">
+              <div class="box ">
+                <div class="img-box">
+                  <a th:href="@{/book/{id}/{slug}(id=${history.id}, slug=${history.slug})}">
+                    <img th:src="${history.cover}" th:alt="${history.title}">
+                  </a>
+                </div>
+                <div class="detail-box">
+                  <a th:href="@{/book/{id}/{slug}(id=${history.id}, slug=${history.slug})}">
+                    <h5 th:text="${history.title}">
+                      Textbooks
+                    </h5>
+                  </a>
+                  <h6 th:text="${history.price}">
+                    Price
+                  </h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="catagory_section layout_padding">
+      <div class="catagory_container">
+        <div class="container ">
+          <div class="heading_container heading_center">
+            <h2>
+              <a th:href="@{/genres/biography}">Biography</a>
+            </h2>
+            <p>
+              There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration
+            </p>
+          </div>
+          <div class="row">
+            <div th:each="bio, iterStat : ${getBio}" th:if="${iterStat.index < 6}" class="col-sm-6 col-md-4 ">
+              <div class="box ">
+                <div class="img-box">
+                  <a th:href="@{/book/{id}/{slug}(id=${bio.id}, slug=${bio.slug})}">
+                    <img th:src="${bio.cover}" th:alt="${bio.title}">
+                  </a>
+                </div>
+                <div class="detail-box">
+                  <a th:href="@{/book/{id}/{slug}(id=${bio.id}, slug=${bio.slug})}">
+                    <h5 th:text="${bio.title}">
+                      Textbooks
+                    </h5>
+                  </a>
+                  <h6 th:text="${bio.price}">
+                    Price
+                  </h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- end catagory section -->
+
+    <!-- about section -->
+
+    <section class="about_section layout_padding">
+      <div class="container ">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="img-box">
+              <img src="/images/about-img.png" alt="">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="detail-box">
+              <div class="heading_container">
+                <h2>
+                  About Our Bookstore
+                </h2>
+              </div>
+              <p>
+                At cumque tenetur iste molestiae, vel eum reiciendis assumenda! Numquam, repudiandae. Consequuntur obcaecati recusandae aliquam, amet doloribus eius dolores officiis cumque? Quibusdam praesentium pariatur sapiente mollitia, amet hic iusto voluptas! Iusto quo earum vitae excepturi, ipsam aliquid deleniti assumenda culpa deserunt.
+              </p>
+              <a href="">
+                Read More
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- end about section -->
+
+    <!-- client section -->
+
+    <section class="client_section layout_padding">
+      <div class="container ">
+        <div class="heading_container heading_center">
+          <h2>
+            What Says Customers
+          </h2>
+          <hr>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mx-auto">
+            <div class="client_container ">
+              <div class="detail-box">
+                <p>
+                  Editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by
+                </p>
+                <span>
+                  <i class="fa fa-quote-left" aria-hidden="true"></i>
+                </span>
+              </div>
+              <div class="client_id">
+                <div class="img-box">
+                  <img src="/images/c1.jpg" alt="">
+                </div>
+                <div class="client_name">
+                  <h5>
+                    Jone Mark
+                  </h5>
+                  <h6>
+                    Student
+                  </h6>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 mx-auto">
+            <div class="client_container ">
+              <div class="detail-box">
+                <p>
+                  Editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by
+                </p>
+                <span>
+                  <i class="fa fa-quote-left" aria-hidden="true"></i>
+                </span>
+              </div>
+              <div class="client_id">
+                <div class="img-box">
+                  <img src="/images/c2.jpg" alt="">
+                </div>
+                <div class="client_name">
+                  <h5>
+                    Anna Crowe
+                  </h5>
+                  <h6>
+                    Student
+                  </h6>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 mx-auto">
+            <div class="client_container ">
+              <div class="detail-box">
+                <p>
+                  Editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by
+                </p>
+                <span>
+                  <i class="fa fa-quote-left" aria-hidden="true"></i>
+                </span>
+              </div>
+              <div class="client_id">
+                <div class="img-box">
+                  <img src="/images/c3.jpg" alt="">
+                </div>
+                <div class="client_name">
+                  <h5>
+                    Hilley James
+                  </h5>
+                  <h6>
+                    Student
+                  </h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- end client section -->
+
+    <!-- blog section -->
+
+    <section class="blog_section layout_padding">
+      <div class="container">
+        <div class="heading_container heading_center">
+          <h2>
+            From Our Blog
+          </h2>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="box">
+              <div class="img-box">
+                <img src="/images/b1.jpg" alt="">
+                <h4 class="blog_date">
+                  <span>
+                    19 January 2021
+                  </span>
+                </h4>
+              </div>
+              <div class="detail-box">
+                <h5>
+                  Eius, dolor? Vel velit sed doloremque
+                </h5>
+                <p>
+                  Incidunt magni explicabo ullam ipsa quo consequuntur eveniet illo? Aspernatur nam dolorem a neque? Esse eaque dolores hic debitis cupiditate, ad beatae voluptatem numquam dignissimos ab porro
+                </p>
+                <a href="">
+                  Read More
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="box">
+              <div class="img-box">
+                <img src="/images/b2.jpg" alt="">
+                <h4 class="blog_date">
+                  <span>
+                    19 January 2021
+                  </span>
+                </h4>
+              </div>
+              <div class="detail-box">
+                <h5>
+                  Minus aliquid alias porro iure fuga
+                </h5>
+                <p>
+                  Officiis veritatis id illo eligendi repellat facilis animi adipisci praesentium. Tempore ab provident porro illo ex obcaecati deleniti enim sequi voluptas at. Harum veniam eos nisi distinctio! Porro, reiciendis eius.
+                </p>
+                <a href="">
+                  Read More
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- end blog section -->
+
+    <!-- contact section -->
+
+    <section class="contact_section layout_padding">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 ">
+            <div class="heading_container ">
+              <h2 class="">
+                Contact Us
+              </h2>
+            </div>
+            <form action="#">
+              <div>
+                <input type="text" placeholder="Name" />
+              </div>
+              <div>
+                <input type="email" placeholder="Email" />
+              </div>
+              <div>
+                <input type="text" placeholder="Pone Number" />
+              </div>
+              <div>
+                <input type="text" class="message-box" placeholder="Message" />
+              </div>
+              <div class="btn-box">
+                <button>
+                  SEND
+                </button>
+              </div>
+            </form>
+          </div>
+          <div class="col-md-6">
+            <div class="img-box">
+              <img src="/images/contact-img.png" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- end contact section -->
+
+    <!-- info section -->
+
+    <section class="info_section layout_padding2">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 col-lg-3 info-col">
+            <div class="info_detail">
+              <h4>
+                About Us
+              </h4>
+              <p>
+                Vitae aut explicabo fugit facere alias distinctio, exem commodi mollitia minusem dignissimos atque asperiores incidunt vel voluptate iste
+              </p>
+              <div class="info_social">
+                <a href="">
+                  <i class="fa fa-facebook" aria-hidden="true"></i>
+                </a>
+                <a href="">
+                  <i class="fa fa-twitter" aria-hidden="true"></i>
+                </a>
+                <a href="">
+                  <i class="fa fa-linkedin" aria-hidden="true"></i>
+                </a>
+                <a href="">
+                  <i class="fa fa-instagram" aria-hidden="true"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3 info-col">
+            <div class="info_contact">
+              <h4>
+                Address
+              </h4>
+              <div class="contact_link_box">
+                <a href="">
+                  <i class="fa fa-map-marker" aria-hidden="true"></i>
+                  <span>
+                    Location
+                  </span>
+                </a>
+                <a href="">
+                  <i class="fa fa-phone" aria-hidden="true"></i>
+                  <span>
+                    Call +01 1234567890
+                  </span>
+                </a>
+                <a href="">
+                  <i class="fa fa-envelope" aria-hidden="true"></i>
+                  <span>
+                    demo@gmail.com
+                  </span>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3 info-col">
+            <div class="info_contact">
+              <h4>
+                Newsletter
+              </h4>
+              <form action="#">
+                <input type="text" placeholder="Enter email" />
+                <button type="submit">
+                  Subscribe
+                </button>
+              </form>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3 info-col">
+            <div class="map_container">
+              <div class="map">
+                <div id="googleMap"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- end info section -->
+
+    <!-- footer section -->
+    <footer class="footer_section">
+      <div class="container">
+        <p>
+          &copy; <span id="displayYear"></span> All Rights Reserved By
+          <a href="https://html.design/">Free Html Templates</a>
+        </p>
+      </div>
+    </footer>
+    <!-- footer section -->
+
+    <!-- jQery -->
+    <script src="/js/jquery-3.4.1.min.js"></script>
+    <!-- bootstrap js -->
+    <script src="/js/bootstrap.js"></script>
+    <!-- custom js -->
+    <script src="/js/custom.js"></script>
+    <!-- Google Map -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap">
+    </script>
+    <!-- End Google Map -->
+
+  </body>
+
+  </html>

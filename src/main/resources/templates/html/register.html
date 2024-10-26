@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en"
+      th:replace="~{html/layout/layout :: layout(~{:: title}, ~{}, ~{:: #main-content}, ~{:: #js})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <!-- Include Bootstrap CSS -->
+    <th:block id="css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    </th:block>
+</head>
+<body>
+<th:block id="main-content">
+    <div class="container mt-5">
+        <div class="d-flex justify-content-center align-items-center flex-column">
+            <h1 class="mb-4">Form Register</h1>
+            <form id="form-register" class="p-4 bg-light border rounded">
+                <div class="mb-3 form-group">
+                    <label for="name" class="form-label">Name:</label>
+                    <input type="text" class="form-control" id="name" required>
+                </div>
+                <div class="mb-3 form-group">
+                    <label for="email" class="form-label">Email:</label>
+                    <input type="email" class="form-control" id="email" required>
+                </div>
+                <div class="mb-3 form-group">
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </div>
+                <div class="text-center">
+                    <a href="/login">Quay lại đăng nhập</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</th:block>
+<th:block id="js">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        document.getElementById('form-register').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await axios.post('/api/auth/register', { name, email, password });
+                alert("Đăng ký thành công. Kiểm tra email để kích hoạt tài khoản");
+                document.getElementById('form-register').reset(); // Clear form on success
+            } catch (error) {
+                console.error(error);
+                const errorMessage = error.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.';
+                alert(errorMessage);
+            }
+        });
+    </script>
+</th:block>
+</body>
+</html>
