@@ -2,15 +2,7 @@
 <html xmlns:th="https://www.thymeleaf.org" lang="en" th:replace="~{html/layout/layout :: layout(~{:: title}, ~{}, ~{:: #main-content}, ~{:: #js})}">
 <head>
   <title>Bostorek</title>
-  <th:block id="css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css"
-          integrity="sha512-tS3S5qG0BlhnQROyJXvNjeEM4UpMXHrQfTGmbQ1gKmelCxlSEBUaxhRBj/EFTzpbP4RVSrpEikbmdJobCvhE3g=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css"
-          integrity="sha512-sMXtMNL1zRzolHYKEujM2AqCLUR9F2C4/05cdbxjjLSRvMQIciEPCQZo++nk7go3BtSuK9kfa/s+a4f4i5pLkw=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
-  </th:block>
+  <th:block id="css"></th:block>
 </head>
 
 <body class="sub_page">
@@ -39,14 +31,7 @@
     </div>
   </section>
 </th:block>
-
-
 <!-- Scripts -->
-<th:block id="js">
-  <script src="/js/jquery-3.4.1.min.js"></script>
-  <script src="/js/bootstrap.js"></script>
-  <script src="/js/custom.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=myMap"></script>
-</th:block>
+<th:block id="js"></th:block>
 </body>
 </html>

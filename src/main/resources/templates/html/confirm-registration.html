@@ -1,17 +1,15 @@
-<!DOCTYPE html>
-<html xmlns:th="https://www.thymeleaf.org" lang="en"
-      th:replace="~{html/layout/layout :: layout(~{:: title}, ~{}, ~{:: #main-content}, ~{:: #js})}">>
-<head>
-    <meta charset="UTF-8">
-    <title>Confirmation</title>
-</head>
-<body>
-<h2 th:text="${response.message}"></h2>
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="https://www.thymeleaf.org" lang="en"-->
+<!--      th:replace="~{html/layout/layout :: layout(~{:: title}, ~{}, ~{:: #main-content}, ~{:: #js})}">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Confirmation</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h2 th:text="${response.message}"></h2>-->
 
-<th:block th:if="${response.success}">
-    <button>
-        <a href="/login">Đăng nhập</a>
-    </button>
-</th:block>
-</body>
-</html>
+<!--<th:block th:if="${response.success}">-->
+<!--    <a th:href="@{/login}" class="button-link">Đăng nhập</a>-->
+<!--</th:block>-->
+<!--</body>-->
+<!--</html>-->

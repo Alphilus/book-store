@@ -68,6 +68,9 @@ public class AuthService {
         // Encode password before saving
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
+        // Convert the user's name to uppercase for the profile picture text
+        String upperCase = request.getName().toUpperCase();
+
         // Create new user
         Users user = Users.builder()
                 .userName(request.getName())
@@ -75,68 +78,72 @@ public class AuthService {
                 .password(encodedPassword)  // Save encoded password
                 .enabled(false)
                 .role(UserRole.USER)
-                .build();
-        userRepository.save(user);
-
-        // Create a token for verification
-        TokenConfirm token = TokenConfirm.builder()
-                .token(UUID.randomUUID().toString())
-                .type(TokenType.REGISTRATION)
+                .enabled(true)
+                .profilePicture("https://placehold.co/50x50?text=" + upperCase)
                 .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(30))
-                .user(user)
+                .updatedAt(LocalDateTime.now())
                 .build();
-        tokenConfirmRepository.save(token);
-
-        // Create the verification link
-        String link = "http://localhost:8080/xac-thuc-tai-khoan?token=" + token.getToken();
-
-        // Send verification email
-        mailService.sendMail2(user, "Xác thực tài khoản", link);
-    }
-
-    public VerifyResponse confirmRegistration(String token) {
-        Optional<TokenConfirm> tokenConfirmOptional = tokenConfirmRepository
-                .findByTokenAndType(token, TokenType.REGISTRATION);
-
-        // Check if the token exists
-        if (tokenConfirmOptional.isEmpty()) {
-            return VerifyResponse.builder()
-                    .message("Token không hợp lệ")
-                    .success(false)
-                    .build();
-        }
-
-        TokenConfirm tokenConfirm = tokenConfirmOptional.get();
-
-        // Check if the token is already confirmed
-        if (tokenConfirm.getConfirmedAt() != null) {
-            return VerifyResponse.builder()
-                    .message("Token đã được xác thực")
-                    .success(false)
-                    .build();
-        }
-
-        // Check if the token has expired
-        if (tokenConfirm.getExpiresAt().isBefore(LocalDateTime.now())) {
-            return VerifyResponse.builder()
-                    .message("Token đã hết hạn")
-                    .success(false)
-                    .build();
-        }
-
-        // Activate the user account
-        Users user = tokenConfirm.getUser();
-        user.setEnabled(true);
         userRepository.save(user);
 
-        // Confirm the token
-        tokenConfirm.setConfirmedAt(LocalDateTime.now());
-        tokenConfirmRepository.save(tokenConfirm);
-
-        return VerifyResponse.builder()
-                .message("Xác thực tài khoản thành công")
-                .success(true)
-                .build();
+//        // Create a token for verification
+//        TokenConfirm token = TokenConfirm.builder()
+//                .token(UUID.randomUUID().toString())
+//                .type(TokenType.REGISTRATION)
+//                .createdAt(LocalDateTime.now())
+//                .expiresAt(LocalDateTime.now().plusMinutes(30))
+//                .user(user)
+//                .build();
+//        tokenConfirmRepository.save(token);
+//
+//        // Create the verification link
+//        String link = "http://localhost:8080/confirmation?token=" + token.getToken();
+//
+//        // Send verification email
+//        mailService.sendMail2(user, "Xác thực tài khoản", link);
     }
+
+//    public VerifyResponse confirmRegistration(String token) {
+//        Optional<TokenConfirm> tokenConfirmOptional = tokenConfirmRepository
+//                .findByTokenAndType(token, TokenType.REGISTRATION);
+//
+//        // Check if the token exists
+//        if (tokenConfirmOptional.isEmpty()) {
+//            return VerifyResponse.builder()
+//                    .message("Token không hợp lệ")
+//                    .success(false)
+//                    .build();
+//        }
+//
+//        TokenConfirm tokenConfirm = tokenConfirmOptional.get();
+//
+//        // Check if the token is already confirmed
+//        if (tokenConfirm.getConfirmedAt() != null) {
+//            return VerifyResponse.builder()
+//                    .message("Token đã được xác thực")
+//                    .success(false)
+//                    .build();
+//        }
+//
+//        // Check if the token has expired
+//        if (tokenConfirm.getExpiresAt().isBefore(LocalDateTime.now())) {
+//            return VerifyResponse.builder()
+//                    .message("Token đã hết hạn")
+//                    .success(false)
+//                    .build();
+//        }
+//
+//        // Activate the user account
+//        Users user = tokenConfirm.getUser();
+//        user.setEnabled(true);
+//        userRepository.save(user);
+//
+//        // Confirm the token
+//        tokenConfirm.setConfirmedAt(LocalDateTime.now());
+//        tokenConfirmRepository.save(tokenConfirm);
+//
+//        return VerifyResponse.builder()
+//                .message("Xác thực tài khoản thành công")
+//                .success(true)
+//                .build();
+//    }
 }

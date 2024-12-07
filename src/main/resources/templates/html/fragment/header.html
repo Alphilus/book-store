@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-<!-- header section strats -->
+<!-- header section starts -->
 <header class="header_section">
     <div class="container-fluid">
         <nav class="navbar navbar-expand-lg custom_nav-container ">
@@ -37,53 +38,64 @@
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/contact}">Contact Us</a>
                     </li>
+
                     <!-- If the user is not logged in -->
                     <li class="nav-item" th:if="${session.currentUser == null}">
                         <a class="nav-link" th:href="@{/login}">Đăng nhập</a>
                     </li>
-                    <!-- If the user is logged in -->
-                    <li class="nav-item" th:if="${session.currentUser != null}">
-                        <a class="nav-link" href="#" onclick="logout()">Đăng xuất</a>
-                        <script>
-                            function logout() {
-                                fetch('/api/auth/logout', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json'
-                                    }
-                                })
-                                    .then(response => {
-                                        if (response.ok) {
-                                            // Remove client-side session data
-                                            sessionStorage.removeItem('currentUser');
 
-                                            // Redirect to homepage or login page
-                                            window.location.href = "/";
-                                        } else {
-                                            console.error('Logout failed:', response.statusText);
+                    <!-- If the user is logged in, show dropdown with profile and logout -->
+                    <li class="nav-item dropdown" th:if="${session.currentUser != null}">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img th:src="${session.currentUser.profilePicture}" th:alt="${session.currentUser.userName}" class="rounded-circle" width="30" height="30">
+                            <span th:text="${session.currentUser.userName}"></span>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="userDropdown">
+                            <a class="dropdown-item" th:href="@{/user/{id}/{email}(id=${session.currentUser.id}, email=${session.currentUser.email})}">Profile</a>
+                            <a class="dropdown-item" th:href="@{/user/{id}/{email}/favourite(id=${session.currentUser.id}, email=${session.currentUser.email})}">Favorites</a> <!-- Added Favorites link -->
+                            <a class="dropdown-item" href="#" onclick="logout()">Đăng xuất</a>
+                            <script>
+                                function logout() {
+                                    fetch('/api/auth/logout', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
                                         }
                                     })
-                                    .catch(error => {
-                                        console.error('Error during logout:', error);
-                                    });
-                            }
-                        </script>
-                    </li>
-                    <!-- If the user is logged in, show the avatar -->
-                    <li class="avatar" th:if="${session.currentUser != null}">
-                        <img class="nav-link" th:src="${session.currentUser.profilePicture}" th:alt="${session.currentUser.userName}">
+                                        .then(response => {
+                                            if (response.ok) {
+                                                // Remove client-side session data
+                                                sessionStorage.removeItem('currentUser');
+
+                                                // Redirect to homepage or login page
+                                                window.location.href = "/";
+                                            } else {
+                                                console.error('Logout failed:', response.statusText);
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.error('Error during logout:', error);
+                                        });
+                                }
+                            </script>
+                        </div>
                     </li>
                 </ul>
-                <from class="search_form">
+
+                <!-- Search form -->
+                <form class="search_form">
                     <input type="text" class="form-control" placeholder="Search here...">
-                    <button class="" type="submit">
+                    <button class="btn" type="submit">
                         <i class="fa fa-search" aria-hidden="true"></i>
                     </button>
-                </from>
+                </form>
             </div>
         </nav>
     </div>
 </header>
-<!-- end header section -->
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

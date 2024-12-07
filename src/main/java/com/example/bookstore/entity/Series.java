@@ -20,11 +20,11 @@ public class Series {
     Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "book_id")
+    @JoinColumn(name = "book_id", referencedColumnName = "id", nullable = false) // References the 'id' of Books
     Books books;
 
     @ManyToOne
-    @JoinColumn(name = "volume_id")
+    @JoinColumn(name = "volume_id", referencedColumnName = "id", nullable = false) // References the 'id' of Volumes
     Volumes volumes;
 
     LocalDateTime createdAt;

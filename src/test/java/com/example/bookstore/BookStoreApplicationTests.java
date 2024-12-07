@@ -40,6 +40,8 @@ class BookStoreApplicationTests {
 	@Autowired
 	private VoucherRepository voucherRepository;
 	@Autowired
+	private SeriesRepository seriesRepository;
+	@Autowired
 	private PasswordEncoder passwordEncoder;
 
 	@Test
@@ -120,8 +122,10 @@ class BookStoreApplicationTests {
 		List<Author> authors = authorRepository.findAll();
 
 		Set<String> titles = new HashSet<>();
+		int falseStatusCount = 0; // Counter to track books with `status = false`
+		final int MAX_FALSE_STATUS = 10; // Maximum number of books with `status = false`
 
-		for (int i = 0; i < 100; i++) {		
+		for (int i = 0; i < 100; i++) {
 			String name;
 			do {
 				name = faker.book().title();
@@ -157,6 +161,13 @@ class BookStoreApplicationTests {
 
 			int price = ((random.nextInt(550) + 100) * 1000);
 			String upperCase = String.valueOf(name.charAt(0)).toUpperCase();
+
+			// Determine the status based on the falseStatusCount
+			boolean status = falseStatusCount < MAX_FALSE_STATUS && faker.bool().bool();
+			if (!status) {
+				falseStatusCount++;
+			}
+
 			Books books = Books.builder()
 					.title(name)
 					.slug(slugify.slugify(name))
@@ -165,7 +176,7 @@ class BookStoreApplicationTests {
 					.cover("https://placehold.co/480x600?text=" + upperCase)
 					.preview("https://placehold.co/924x612?text=" + upperCase)
 					.price(price)
-					.rating(faker.number().randomDouble(1,1,5))
+					.rating(faker.number().randomDouble(1, 1, 5))
 					.quantity((int) faker.number().randomDouble(1, 1, 999))
 					.publishYear(faker.number().numberBetween(2020, 2024))
 					.type(BookType.values()[random.nextInt(BookType.values().length)])
@@ -174,11 +185,14 @@ class BookStoreApplicationTests {
 					.supplier(rdSupplier)
 					.createdAt(LocalDateTime.now())
 					.updatedAt(LocalDateTime.now())
-					.status(faker.bool().bool())
+					.status(status)
 					.build();
+
 			bookRepository.save(books);
 		}
 	}
+
+
 	@Test
 	void save_volume(){
 		List<Books> books = bookRepository.findAll();
@@ -207,6 +221,7 @@ class BookStoreApplicationTests {
 			}
 		}
 	}
+
 	@Test
 	void save_users(){
 		Faker faker = new Faker();
@@ -238,6 +253,7 @@ class BookStoreApplicationTests {
 			userRepository.save(users);
 		}
 	}
+
 	@Test
 	void save_reviews(){
 		Faker faker = new Faker();
@@ -260,20 +276,29 @@ class BookStoreApplicationTests {
 			}
 		}
 	}
+
 	@Test
 	void save_favorite(){
+		// Fetch all users with the role USER
 		List<Users> users = userRepository.findUsersByRole(UserRole.USER);
+
+		// Fetch all books with status = true
 		List<Books> books = bookRepository.findBooksByStatus(true);
 
 		for (Users user : users) {
 			List<Books> favoriteBooks = new ArrayList<>();
+
+			// Randomly select up to 3 books for the user's favorites list
 			for (int i = 0; i < new Random().nextInt(3) + 1; i++) {
 				Books book = books.get(new Random().nextInt(books.size()));
-				if (!favoriteBooks.contains(book)) {
+
+				// Ensure the book is active and hasn't already been added
+				if (book.getStatus() && !favoriteBooks.contains(book)) {
 					favoriteBooks.add(book);
 				}
 			}
 
+			// Save each selected book as a favorite for the user
 			for (Books book : favoriteBooks) {
 				Favourites favorite = Favourites.builder()
 						.users(user)
@@ -285,6 +310,7 @@ class BookStoreApplicationTests {
 			}
 		}
 	}
+
 	@Test
 	void save_voucher(){
 		Faker faker = new Faker();
@@ -294,6 +320,11 @@ class BookStoreApplicationTests {
 			String code = faker.code().ean8();  // Generate a random voucher code
 			int value = random.nextInt(50) + 1;  // Generate a random value for the voucher
 			VoucherType voucherType = VoucherType.values()[random.nextInt(VoucherType.values().length)];
+
+			// Ensure FLAT_DEDUCT vouchers have values ending with "000"
+			if (voucherType == VoucherType.FLAT_DEDUCTION) {
+				value = (value * 1000);  // Adjust value to end in "000"
+			}
 
 			Voucher voucher = Voucher.builder()
 					.code(code)
@@ -305,4 +336,30 @@ class BookStoreApplicationTests {
 			voucherRepository.save(voucher);
 		}
 	}
+
+	@Test
+	void save_series(){
+		List<Books> booksList = bookRepository.findAll();
+
+		for (Books book : booksList) {
+			List<Volumes> volumesList = volumeRepository.findByIdOrderByDisplayOrder(book.getId());
+
+			for (Volumes volume : volumesList) {
+				// Check if the Series entry already exists
+				boolean seriesExists = seriesRepository.existsByBooksAndVolumes(book, volume);
+
+				if (!seriesExists) {
+					// Create new Series entry
+					Series series = Series.builder()
+							.books(book)
+							.volumes(volume)
+							.createdAt(LocalDateTime.now())
+							.updatedAt(LocalDateTime.now())
+							.build();
+					seriesRepository.save(series);
+				}
+			}
+		}
+	}
+
 }

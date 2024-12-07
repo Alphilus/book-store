@@ -13,7 +13,7 @@ public class VolumeService {
     private final VolumeRepository volumeRepository;
 
     public List<Volumes> getVolumeByBookId(Integer id) {
-        return volumeRepository.findByIdOrderByDisplayOrder(id);
+        return volumeRepository.findByBooksIdOrderByDisplayOrder(id);
     }
 
 }

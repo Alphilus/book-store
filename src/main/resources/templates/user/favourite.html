@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en" th:replace="~{html/layout/layout :: layout(~{:: title}, ~{}, ~{:: #main-content}, ~{:: #js})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Favourite</title>
+    <th:block id="css"></th:block>
+</head>
+<body>
+<th:block id="main-content">
+    <section class="py-4">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h3>Danh sách sách yêu thích</h3> <!-- Title for favorite books -->
+            </div>
+            <div class="row">
+                <div th:each="book : ${favouriteBooks}" class="col-3 mb-4">
+                    <div class="book-item">
+                        <div class="book-cover rounded overflow-hidden">
+                            <a th:href="@{/book/{id}/{slug}(id=${book.id}, slug=${book.slug})}">
+                                <img class="w-100 h-100" th:src="${book.cover}" th:alt="${book.title}"> <!-- Ensure you have a coverImage property -->
+                            </a>
+                        </div>
+                        <p class="mt-2">
+                            <a th:href="@{/books/{id}/{slug}(id=${book.id}, slug=${book.slug})}" th:text="${book.title}"></a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(favouriteBooks)}" class="col-12"> <!-- Check if no favorite books -->
+                <p>Không có sách yêu thích nào!</p>
+            </div>
+        </div>
+    </section>
+</th:block>
+<th:block id="js"></th:block>
+</body>
+</html>

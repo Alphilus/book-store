@@ -1,18 +1,12 @@
 package com.example.bookstore.controller;
 
-import com.example.bookstore.entity.Genres;
-import com.example.bookstore.entity.Reviews;
-import com.example.bookstore.entity.Volumes;
+import com.example.bookstore.entity.*;
 import com.example.bookstore.model.enums.BookType;
 import com.example.bookstore.model.enums.ParentGenres;
 import com.example.bookstore.response.VerifyResponse;
-import com.example.bookstore.service.AuthService;
-import com.example.bookstore.service.ReviewService;
-import com.example.bookstore.service.VolumeService;
+import com.example.bookstore.service.*;
 import org.springframework.data.domain.Page;
 import org.springframework.ui.Model;
-import com.example.bookstore.entity.Books;
-import com.example.bookstore.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +28,8 @@ public class WebController {
 
     private final AuthService authService;
 
+    private final UserService userService;
+
     @GetMapping("/login")
     public String getLogin() {
         return "/html/login";
@@ -45,11 +41,40 @@ public class WebController {
     }
 
     // http://localhost:8080/xac-thuc-tai-khoan?token=298e0780-fb22-44bc-90b9-5d3b333e25f4
-    @GetMapping("/confirmation")
-    public String getConfirmRegistrationPage(@RequestParam String token, Model model) {
-        VerifyResponse response = authService.confirmRegistration(token);
-        model.addAttribute("response", response);
-        return "/html/confirm-registration";
+//    @GetMapping("/confirmation")
+//    public String getConfirmRegistrationPage(@RequestParam String token, Model model) {
+//        VerifyResponse response = authService.confirmRegistration(token);
+//        model.addAttribute("response", response);
+//        return "/html/confirm-registration";
+//    }
+
+    @GetMapping("/user/{id}/{email}")
+    public String getUserPage(Model model, @PathVariable Integer id, @PathVariable String email) {
+        Users users = userService.getUserByNameAndEmail(id, email);
+        model.addAttribute("users", users);
+        return "/user/profile-user";
+    }
+
+    @GetMapping("/user/{id}/{email}/favourite")
+    public String getFavoriteBooks(Model model, @PathVariable Integer id, @PathVariable String email) {
+        Users user = userService.getUserByNameAndEmail(id, email);
+
+        if (user == null) {
+            return "html/index";
+        }
+
+        // Retrieve the list of favorite books, assuming it's a list of Favourites
+        List<Favourites> favouriteBooks = userService.getFavoritesById(user.getId());
+
+        // Extract the books from the Favourites list
+        List<Books> books = favouriteBooks.stream()
+                .map(Favourites::getBooks) // Get the associated book
+                .collect(Collectors.toList());
+
+        model.addAttribute("user", user);
+        model.addAttribute("favouriteBooks", books);  // Pass the list of books to the view
+
+        return "/user/favourite";
     }
 
     @GetMapping("/")
@@ -104,13 +129,16 @@ public class WebController {
     @GetMapping("/book/{id}/{slug}")
     public String getDetail(Model model, @PathVariable Integer id, @PathVariable String slug) {
         Books books = bookService.getBookByIdAndSlug(id, slug);
+        Integer userId = userService.getCurrentUserId();
+
 
         if (books == null){
             return "redirect:/not-found";
         }
 
-        if (books.getType() == BookType.SERIES){
+        if (books.getType() == BookType.SERIES) {
             List<Volumes> volumes = volumeService.getVolumeByBookId(books.getId());
+            System.out.println("Volume count: " + volumes.size()); // For debugging
             model.addAttribute("volumes", volumes);
         }
 
@@ -127,6 +155,9 @@ public class WebController {
         // Debugging: Output the size of the recommended books list
         System.out.println("Recommended Books Count: " + recommendedBooks.size());
 
+        boolean isFavorite = userId != null && userService.isBookFavorite(userId, books.getId());
+
+        model.addAttribute("isFavorite", isFavorite);
         model.addAttribute("books", books);
         model.addAttribute("reviews", reviews);
         model.addAttribute("recommendedBooks", recommendedBooks);

@@ -51,6 +51,7 @@
                 const response = await axios.post('/api/auth/register', { name, email, password });
                 alert("Đăng ký thành công. Kiểm tra email để kích hoạt tài khoản");
                 document.getElementById('form-register').reset(); // Clear form on success
+                console.log("dk");
             } catch (error) {
                 console.error(error);
                 const errorMessage = error.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.';

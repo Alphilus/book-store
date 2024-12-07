@@ -1,5 +1,5 @@
   <!DOCTYPE html>
-  <html lang="en">
+  <html xmlns:th="https://www.thymeleaf.org" lang="en" th:replace="~{html/layout/layout :: layout(~{:: title}, ~{}, ~{:: #main-content}, ~{:: #js})}">
   <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -16,101 +16,14 @@
 
     <title>Bostorek</title>
 
-    <!-- bootstrap core css -->
-    <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
-    <!-- font awesome style -->
-    <link href="/css/font-awesome.min.css" rel="stylesheet" />
-
-    <!-- Custom styles for this template -->
-    <link href="/css/style.css" rel="stylesheet" />
-    <!-- responsive style -->
-    <link href="/css/responsive.css" rel="stylesheet" />
+    <th:block id="css"></th:block>
 
   </head>
 
   <body>
+  <th:block id="main-content">
 
     <div class="hero_area">
-      <!-- header section strats -->
-      <header class="header_section">
-        <div class="container-fluid">
-          <nav class="navbar navbar-expand-lg custom_nav-container ">
-            <a class="navbar-brand" href="/">
-              <span>
-                Bostorek
-              </span>
-            </a>
-
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-              <span class=""> </span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-              <ul class="navbar-nav">
-                <!-- Navigation links that are always visible -->
-                <li class="nav-item active">
-                  <a class="nav-link pl-lg-0" href="/">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="about">About</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="categories">Categories</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="blog">Blog</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="contact">Contact Us</a>
-                </li>
-                <!-- If the user is not logged in -->
-                <li class="nav-item" th:if="${session.currentUser == null}">
-                  <a class="nav-link" href="/login">Đăng nhập</a>
-                </li>
-                <!-- If the user is logged in -->
-                <li class="nav-item" th:if="${session.currentUser != null}">
-                  <a class="nav-link" href="#" onclick="logout()">Đăng xuất</a>
-                  <script>
-                    function logout() {
-                      fetch('/api/auth/logout', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json'
-                        }
-                      })
-                              .then(response => {
-                                if (response.ok) {
-                                  // Remove client-side session data
-                                  sessionStorage.removeItem('currentUser');
-
-                                  // Redirect to homepage or login page
-                                  window.location.href = "/";
-                                } else {
-                                  console.error('Logout failed:', response.statusText);
-                                }
-                              })
-                              .catch(error => {
-                                console.error('Error during logout:', error);
-                              });
-                    }
-                  </script>
-                </li>
-                <!-- If the user is logged in, show the avatar -->
-                <li class="avatar" th:if="${session.currentUser != null}">
-                  <img class="nav-link" th:src="${session.currentUser.profilePicture}" th:alt="${session.currentUser.userName}">
-                </li>
-              </ul>
-              <from class="search_form">
-                <input type="text" class="form-control" placeholder="Search here...">
-                <button class="" type="submit">
-                  <i class="fa fa-search" aria-hidden="true"></i>
-                </button>
-              </from>
-            </div>
-          </nav>
-        </div>
-      </header>
-      <!-- end header section -->
       <!-- slider section -->
       <section class="slider_section">
         <div id="customCarousel1" class="carousel slide" data-ride="carousel">
@@ -608,109 +521,10 @@
 
     <!-- end contact section -->
 
-    <!-- info section -->
+  </th:block>
 
-    <section class="info_section layout_padding2">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-6 col-lg-3 info-col">
-            <div class="info_detail">
-              <h4>
-                About Us
-              </h4>
-              <p>
-                Vitae aut explicabo fugit facere alias distinctio, exem commodi mollitia minusem dignissimos atque asperiores incidunt vel voluptate iste
-              </p>
-              <div class="info_social">
-                <a href="">
-                  <i class="fa fa-facebook" aria-hidden="true"></i>
-                </a>
-                <a href="">
-                  <i class="fa fa-twitter" aria-hidden="true"></i>
-                </a>
-                <a href="">
-                  <i class="fa fa-linkedin" aria-hidden="true"></i>
-                </a>
-                <a href="">
-                  <i class="fa fa-instagram" aria-hidden="true"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-3 info-col">
-            <div class="info_contact">
-              <h4>
-                Address
-              </h4>
-              <div class="contact_link_box">
-                <a href="">
-                  <i class="fa fa-map-marker" aria-hidden="true"></i>
-                  <span>
-                    Location
-                  </span>
-                </a>
-                <a href="">
-                  <i class="fa fa-phone" aria-hidden="true"></i>
-                  <span>
-                    Call +01 1234567890
-                  </span>
-                </a>
-                <a href="">
-                  <i class="fa fa-envelope" aria-hidden="true"></i>
-                  <span>
-                    demo@gmail.com
-                  </span>
-                </a>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-3 info-col">
-            <div class="info_contact">
-              <h4>
-                Newsletter
-              </h4>
-              <form action="#">
-                <input type="text" placeholder="Enter email" />
-                <button type="submit">
-                  Subscribe
-                </button>
-              </form>
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-3 info-col">
-            <div class="map_container">
-              <div class="map">
-                <div id="googleMap"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- end info section -->
-
-    <!-- footer section -->
-    <footer class="footer_section">
-      <div class="container">
-        <p>
-          &copy; <span id="displayYear"></span> All Rights Reserved By
-          <a href="https://html.design/">Free Html Templates</a>
-        </p>
-      </div>
-    </footer>
-    <!-- footer section -->
-
-    <!-- jQery -->
-    <script src="/js/jquery-3.4.1.min.js"></script>
-    <!-- bootstrap js -->
-    <script src="/js/bootstrap.js"></script>
-    <!-- custom js -->
-    <script src="/js/custom.js"></script>
-    <!-- Google Map -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap">
-    </script>
-    <!-- End Google Map -->
+  <th:block id="js">
+  </th:block>
 
   </body>
 

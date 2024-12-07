@@ -38,7 +38,7 @@ public class MailService {
             context.setVariable("link", link);
 
             // Create the HTML body using Thymeleaf
-            final String htmlContent = templateEngine.process("src/main/resources/templates/mail/template-register.html", context);
+            final String htmlContent = templateEngine.process("mail/template-register", context);
             helper.setText(htmlContent, true);
 
             // Send Message!

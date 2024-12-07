@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en" th:replace="~{html/layout/layout :: layout(~{:: title}, ~{}, ~{:: #main-content}, ~{:: #js})}">
+<head>
+    <meta charset="UTF-8">
+    <title>User's Profile</title>
+    <th:block id="css"></th:block>
+</head>
+<body>
+<th:block id="main-content">
+    <section class="py-4">
+        <div class="container">
+            <div class="d-flex justify-content-center align-items-center flex-column">
+                <h3 class="mb-3">Thông tin cá nhân</h3>
+                <form id="form-info" class="p-4 bg-body-tertiary">
+                    <!-- Full Name -->
+                    <div class="mb-3">
+                        <label for="fullName" class="form-label">Họ tên</label>
+                        <input type="text" class="form-control" id="fullName" name="fullName"
+                               th:value="${session.currentUser.userName}" required>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               th:value="${session.currentUser.email}" disabled>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control mb-3" id="password" name="password"
+                               th:value="${session.currentUser.password}" disabled>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-password">
+                            Thay Đổi Mật Khẩu
+                        </button>
+                    </div>
+
+                    <!-- Gender -->
+                    <div class="mb-3">
+                        <label for="gender" class="form-label">Giới tính</label>
+                        <select class="form-control" id="gender" name="gender" th:value="${session.currentUser.gender}">
+                            <option value="Male" th:selected="${session.currentUser.gender == 'Male'}">Nam</option>
+                            <option value="Female" th:selected="${session.currentUser.gender == 'Female'}">Nữ</option>
+                            <option value="Other" th:selected="${session.currentUser.gender == 'Other'}">Khác</option>
+                        </select>
+                    </div>
+
+                    <!-- Date of Birth -->
+                    <div class="mb-3">
+                        <label for="dateOfBirth" class="form-label">Ngày sinh</label>
+                        <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth"
+                               th:value="${#dates.format(session.currentUser.dateOfBirth, 'yyyy-MM-dd')}" required>
+                    </div>
+
+                    <!-- Profile Picture -->
+                    <div class="mb-3">
+                        <img th:src="${session.currentUser.profilePicture}" alt="Avatar" class="img-thumbnail">
+                        <button type="button" class="btn btn-warning mt-2">Đổi Avatar</button>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal fade" id="modal-password" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePasswordModalLabel">Đổi mật khẩu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-change-password">
+                        <div class="mb-3">
+                            <label for="oldPassword" class="form-label">Mật khẩu cũ</label>
+                            <input type="password" class="form-control" id="oldPassword" name="oldPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Mật khẩu mới</label>
+                            <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Nhập lại mật khẩu mới</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Xác nhận</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</th:block>
+<th:block id="js">
+    <script>
+        $(document).ready(function() {
+            // Submit form
+            $('#form-info').submit(function (e) {
+                e.preventDefault(); // Prevent default form submission
+
+                // Get form data
+                var formData = {
+                    name: $('#fullName').val(),
+                    gender: $('#gender').val(),
+                    dateOfBirth: $('#dateOfBirth').val()
+                };
+
+                // Send PUT request to update user profile
+                axios.put('/api/users/update-profile', formData)
+                    .then(function (response) {
+                        // Update user fields on the page
+                        $('#fullName').val(response.data.name);
+                        $('#gender').val(response.data.gender);
+                        $('#dateOfBirth').val(response.data.dateOfBirth);
+
+                        // Show success message
+                        toastr.success('Profile updated successfully!');
+                        // Reload the page to reflect the updated data
+                        window.location.reload();
+                    })
+                    .catch(function (error) {
+                        // Handle errors
+                        toastr.error('Failed to update profile. Please try again.');
+                    });
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('#form-change-password').submit(function (e) {
+                e.preventDefault(); // Prevent default form submission
+
+                // Get form data
+                var formData = {
+                    oldPassword: $('#oldPassword').val(),
+                    newPassword: $('#newPassword').val(),
+                    confirmPassword: $('#confirmPassword').val()
+                };
+
+                // Validate input
+                if (formData.newPassword !== formData.confirmPassword) {
+                    toastr.error('New password and confirmation do not match.');
+                    return; // Stop the process
+                }
+
+                // Optional: Show a loading indicator
+                toastr.info('Updating password...');
+
+                // Send PUT request to update user password
+                axios.put('/api/users/update-password', formData)
+                    .then(function (response) {
+                        // Show success message
+                        toastr.success('Password updated successfully!');
+                        // Close the modal
+                        $('#modal-password').modal('hide'); // Use the correct ID here
+                    })
+                    .catch(function (error) {
+                        // Handle errors
+                        if (error.response && error.response.data) {
+                            toastr.error(error.response.data.message || 'Failed to update password. Please try again.');
+                        } else {
+                            toastr.error('Failed to update password. Please try again.');
+                        }
+                    });
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>
